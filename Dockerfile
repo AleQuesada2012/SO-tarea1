@@ -1,22 +1,18 @@
-# Use a minimal Linux distro
-FROM ubuntu:22.04
+# Force amd64 arch so everything matches your cross build target
+FROM --platform=linux/amd64 rust:1.80-slim
 
-# Install basic utilities and build essentials
-RUN apt-get update && apt-get install -y \
-    build-essential \
-    curl \
-    git \
-    vim \
-    procps \
-    && rm -rf /var/lib/apt/lists/*
+# Install useful build + debugging tools
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        gcc g++ make gdb strace lldb \
+        ca-certificates pkg-config \
+        libssl-dev git curl vim && \
+    rm -rf /var/lib/apt/lists/*
 
-# Create a non-root user (optional, safer)
-RUN useradd -m rustuser
-USER rustuser
-WORKDIR /home/rustuser
+# Create a user so you're not root inside
+RUN useradd -ms /bin/bash dev
+USER dev
+WORKDIR /home/dev
 
-# Copy your cross-compiled binaries if you want them ready
-COPY target/x86_64-unknown-linux-gnu/release/rastreador ./rastreador
-
-# Start a shell by default
+# By default drop into bash
 CMD ["/bin/bash"]
