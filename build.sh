@@ -1,2 +1,1 @@
-#!/bin/zsh
-cross build --target x86_64-unknown-linux-gnu --release
+docker build --platform linux/amd64 -t rust-test-env-amd64 .
